@@ -55,8 +55,9 @@ public class VoiceCaptureHandler implements AudioReceiveHandler {
         // 一定時間無音なら終了
         // ここの保存の段階でファイル保存からの転送処理を行う
         if (session.silenceFrames >= SILENCE_LIMIT && session.active) {
-            saveUserAudio(userId, username, session.buffer.toByteArray());
+            File file = saveUserAudio(userId, username, session.buffer.toByteArray());
             sessions.remove(userId);
+
         }
     }
 
@@ -70,7 +71,7 @@ public class VoiceCaptureHandler implements AudioReceiveHandler {
         return (int) Math.sqrt(mean);
     }
 
-    private void saveUserAudio(long userId, String username, byte[] audioBytes) {
+    private File saveUserAudio(long userId, String username, byte[] audioBytes) {
         try {
             AudioFormat format = AudioReceiveHandler.OUTPUT_FORMAT;
             AudioInputStream ais = new AudioInputStream(
@@ -84,8 +85,12 @@ public class VoiceCaptureHandler implements AudioReceiveHandler {
 
             AudioSystem.write(ais, AudioFileFormat.Type.WAVE, file);
             AppLogger.log("音声ファイルを保存しました: " + file.getAbsolutePath(), LogLevel.INFO);
+
+            return file;
         } catch (Exception e) {
             AppLogger.log("音声保存中にエラーが発生しました: " + e.getMessage(), LogLevel.ERROR);
+
+            return null;
         }
     }
 }
