@@ -13,18 +13,23 @@ import net.dv8tion.jda.api.utils.ChunkingFilter;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 
+import java.util.List;
+
 @Getter
 public class Bot {
 
     JDA transBot1;
     JDA transBot2;
     JDA mainBot;
+    String apiKey;
     String mainToken;
     String token1;
     String token2;
 
     public Bot() {
         Dotenv dotenv = Dotenv.configure().load();
+
+        this.apiKey = dotenv.get("API_KEY");
         this.mainToken = dotenv.get("MAIN_BOT_TOKEN");
         this.token1 = dotenv.get("BOT_TOKEN_1");
         this.token2 = dotenv.get("BOT_TOKEN_2");
@@ -124,5 +129,9 @@ public class Bot {
                 .addOption(OptionType.STRING, "language2", "2人目のメンバーの翻訳先の言語を指定します (例: ja, en)", true)
                 .queue();
 
+    }
+
+    public List<JDA> getAllSpeakBots() {
+        return List.of(transBot1, transBot2);
     }
 }

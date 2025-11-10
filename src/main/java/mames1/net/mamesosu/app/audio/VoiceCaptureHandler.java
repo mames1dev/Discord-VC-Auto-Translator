@@ -1,5 +1,6 @@
 package mames1.net.mamesosu.app.audio;
 
+import mames1.net.mamesosu.Main;
 import mames1.net.mamesosu.constants.LogLevel;
 import mames1.net.mamesosu.utils.log.AppLogger;
 import net.dv8tion.jda.api.audio.AudioReceiveHandler;
@@ -14,6 +15,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class VoiceCaptureHandler implements AudioReceiveHandler {
 
@@ -56,8 +58,14 @@ public class VoiceCaptureHandler implements AudioReceiveHandler {
         // ここの保存の段階でファイル保存からの転送処理を行う
         if (session.silenceFrames >= SILENCE_LIMIT && session.active) {
             File file = saveUserAudio(userId, username, session.buffer.toByteArray());
+            String key = Main.bot.getApiKey();
             sessions.remove(userId);
 
+            try {
+                String text = CreateTranscriptHandler.getTextResponse(key, Objects.requireNonNull(file).toPath());
+            } catch (Exception e) {
+                AppLogger.log("音声の文字起こし中にエラーが発生しました: " + e.getMessage(), LogLevel.ERROR);
+            }
         }
     }
 

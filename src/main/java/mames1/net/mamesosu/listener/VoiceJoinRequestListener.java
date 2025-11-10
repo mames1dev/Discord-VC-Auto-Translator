@@ -3,7 +3,9 @@ package mames1.net.mamesosu.listener;
 import mames1.net.mamesosu.Main;
 import mames1.net.mamesosu.app.audio.VoiceCaptureHandler;
 import mames1.net.mamesosu.constants.LanguageCodes;
+import mames1.net.mamesosu.constants.LogLevel;
 import mames1.net.mamesosu.object.Bot;
+import mames1.net.mamesosu.utils.log.AppLogger;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -77,26 +79,31 @@ public class VoiceJoinRequestListener extends ListenerAdapter {
             return;
         }
 
-        // チェックOK: Bot1とBot2をボイスチャンネルに参加させる
+        // チェックOK: MainBotとBot1とBot2をボイスチャンネルに参加させる
 
-        Guild guild1 = transBot1.getGuildById(Objects.requireNonNull(guild).getId());
-        if (guild1 != null) {
-            AudioManager am1 = guild1.getAudioManager();
-            if (!am1.isConnected()) {
-                am1.setReceivingHandler(new VoiceCaptureHandler());
-                am1.openAudioConnection(Objects.requireNonNull(audioChannel));
+        AudioManager audioManager = Objects.requireNonNull(guild).getAudioManager();
+        audioManager.setReceivingHandler(new VoiceCaptureHandler());
+        audioManager.openAudioConnection(Objects.requireNonNull(audioChannel));
+
+        for(JDA jda : Main.bot.getAllSpeakBots()) {
+            Guild g = jda.getGuildById(Objects.requireNonNull(guild).getId());
+            if (g != null) {
+                AudioManager am = g.getAudioManager();
+                if (!am.isConnected()) {
+                    am.openAudioConnection(Objects.requireNonNull(audioChannel));
+                }
             }
+
         }
 
-        Guild guild2 = transBot2.getGuildById(guild.getId());
-        if (guild2 != null) {
-            AudioManager am2 = guild2.getAudioManager();
-            if (!am2.isConnected()) {
-                am2.setReceivingHandler(new VoiceCaptureHandler());
-                am2.openAudioConnection(Objects.requireNonNull(audioChannel));
-            }
-        }
+        Main.botMemberMap.put(firstMember, transBot1);
+        AppLogger.log( transBot1.getSelfUser().getName() + " の発言 を " + Objects.requireNonNull(firstMember).getEffectiveName() + " に割り当てました.", LogLevel.INFO);
+
+        Main.botMemberMap.put(secondMember, transBot2);
+        AppLogger.log( transBot2.getSelfUser().getName() + " の発言 を " + Objects.requireNonNull(secondMember).getEffectiveName() + " に割り当てました.", LogLevel.INFO);
 
         e.reply("ボイスチャンネルに参加しました.").setEphemeral(true).queue();
+
+        AppLogger.log("ボイスチャンネルに接続しました. 自動翻訳を開始します.", LogLevel.INFO);
     }
 }
