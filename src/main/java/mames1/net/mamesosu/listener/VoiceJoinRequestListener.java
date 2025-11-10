@@ -5,6 +5,7 @@ import mames1.net.mamesosu.app.audio.VoiceCaptureHandler;
 import mames1.net.mamesosu.constants.LanguageCodes;
 import mames1.net.mamesosu.constants.LogLevel;
 import mames1.net.mamesosu.object.Bot;
+import mames1.net.mamesosu.object.Translate;
 import mames1.net.mamesosu.utils.log.AppLogger;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
@@ -14,6 +15,8 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.managers.AudioManager;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 
@@ -96,11 +99,19 @@ public class VoiceJoinRequestListener extends ListenerAdapter {
 
         }
 
-        Main.botMemberMap.put(firstMember, transBot1);
-        AppLogger.log( transBot1.getSelfUser().getName() + " の発言 を " + Objects.requireNonNull(firstMember).getEffectiveName() + " に割り当てました.", LogLevel.INFO);
+        List<Member> members = List.of(Objects.requireNonNull(firstMember), Objects.requireNonNull(secondMember));
 
-        Main.botMemberMap.put(secondMember, transBot2);
-        AppLogger.log( transBot2.getSelfUser().getName() + " の発言 を " + Objects.requireNonNull(secondMember).getEffectiveName() + " に割り当てました.", LogLevel.INFO);
+        for(Member member : members) {
+            Translate trans = new Translate(member);
+            trans.setLang(Objects.requireNonNull(member == firstMember ? e.getOption("language1") : e.getOption("language2")).getAsString());
+
+            Main.botMemberMap.put(member.getUser(), trans);
+
+            AppLogger.log( member.getUser().getName() + " の発言 を " + Objects.requireNonNull(firstMember).getEffectiveName() + " に割り当てました.", LogLevel.INFO);
+        }
+
+        firstMember.deafen(true).queue();
+        secondMember.deafen(true).queue();
 
         e.reply("ボイスチャンネルに参加しました.").setEphemeral(true).queue();
 

@@ -1,10 +1,12 @@
 package mames1.net.mamesosu.app.audio;
 
 import mames1.net.mamesosu.Main;
+import mames1.net.mamesosu.app.translate.GetTranslateTextHandler;
 import mames1.net.mamesosu.constants.LogLevel;
 import mames1.net.mamesosu.utils.log.AppLogger;
 import net.dv8tion.jda.api.audio.AudioReceiveHandler;
 import net.dv8tion.jda.api.audio.UserAudio;
+import net.dv8tion.jda.api.entities.User;
 
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
@@ -39,6 +41,7 @@ public class VoiceCaptureHandler implements AudioReceiveHandler {
     public void handleUserAudio(UserAudio userAudio) {
         long userId = userAudio.getUser().getIdLong();
         String username = userAudio.getUser().getName();
+        User user = Main.bot.getMainBot().getUserById(userId);
         byte[] data = userAudio.getAudioData(1.0);
 
         UserSession session = sessions.computeIfAbsent(userId, id -> new UserSession());
@@ -59,10 +62,21 @@ public class VoiceCaptureHandler implements AudioReceiveHandler {
         if (session.silenceFrames >= SILENCE_LIMIT && session.active) {
             File file = saveUserAudio(userId, username, session.buffer.toByteArray());
             String key = Main.bot.getApiKey();
+            String text;
             sessions.remove(userId);
 
             try {
-                String text = CreateTranscriptHandler.getTextResponse(key, Objects.requireNonNull(file).toPath());
+
+                if(Main.bot.isLocalTranscript()) {
+                    text = CreateLocalTranscriptHandler.getTextResponse(Objects.requireNonNull(file).toPath());
+                } else {
+                    text = CreateOnlineTranscriptHandler.getTextResponse(key, Objects.requireNonNull(file).toPath());
+                }
+
+                System.out.println(text);
+
+                text = GetTranslateTextHandler.getText(text,Main.botMemberMap.get(user).getLang());
+                System.out.println(text);
             } catch (Exception e) {
                 AppLogger.log("音声の文字起こし中にエラーが発生しました: " + e.getMessage(), LogLevel.ERROR);
             }

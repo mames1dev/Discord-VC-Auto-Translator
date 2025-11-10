@@ -18,10 +18,16 @@ import java.util.List;
 @Getter
 public class Bot {
 
+    boolean localTranscript;
+
     JDA transBot1;
     JDA transBot2;
     JDA mainBot;
+
     String apiKey;
+    String deeplKey;
+    String chatGptKey;
+
     String mainToken;
     String token1;
     String token2;
@@ -29,10 +35,14 @@ public class Bot {
     public Bot() {
         Dotenv dotenv = Dotenv.configure().load();
 
-        this.apiKey = dotenv.get("API_KEY");
+        this.apiKey = dotenv.get("API_KEY"); // Elevenlabs
+        this.deeplKey = dotenv.get("DEEPL_KEY"); // DeepL
+
         this.mainToken = dotenv.get("MAIN_BOT_TOKEN");
         this.token1 = dotenv.get("BOT_TOKEN_1");
         this.token2 = dotenv.get("BOT_TOKEN_2");
+
+        this.localTranscript = Boolean.parseBoolean(dotenv.get("LOCAL_TRANSCRIPT", "false"));
     }
 
     // 1対1で翻訳を行うBotを起動する

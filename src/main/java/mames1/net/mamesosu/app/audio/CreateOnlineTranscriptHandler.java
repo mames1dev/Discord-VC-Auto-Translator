@@ -14,12 +14,8 @@ import java.nio.file.Path;
 import java.util.Objects;
 import java.util.UUID;
 
-public abstract class CreateTranscriptHandler {
+public class CreateOnlineTranscriptHandler {
 
-    /**
-     * ElevenLabs Speech-to-Text へ音声ファイルを multipart/form-data で送信し、
-     * JSON レスポンスの `text` を返す。
-     */
     public static String getTextResponse(String apiKey, Path audioFile)
             throws IOException, InterruptedException {
 
