@@ -1,7 +1,6 @@
 package mames1.net.mamesosu.app.audio;
 
 import mames1.net.mamesosu.Main;
-import mames1.net.mamesosu.app.translate.GetTranslateTextHandler;
 import mames1.net.mamesosu.constants.LogLevel;
 import mames1.net.mamesosu.utils.log.AppLogger;
 import net.dv8tion.jda.api.audio.AudioReceiveHandler;
@@ -17,7 +16,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 public class VoiceCaptureHandler implements AudioReceiveHandler {
 
@@ -62,21 +60,15 @@ public class VoiceCaptureHandler implements AudioReceiveHandler {
         if (session.silenceFrames >= SILENCE_LIMIT && session.active) {
             File file = saveUserAudio(userId, username, session.buffer.toByteArray());
             String key = Main.bot.getApiKey();
-            String text;
             sessions.remove(userId);
 
             try {
-
                 if(Main.bot.isLocalTranscript()) {
-                    text = CreateLocalTranscriptHandler.getTextResponse(Objects.requireNonNull(file).toPath());
-                } else {
-                    text = CreateOnlineTranscriptHandler.getTextResponse(key, Objects.requireNonNull(file).toPath());
+                    GenerateTextHandler.generate(file, user);
+                    return;
                 }
 
-                System.out.println(text);
-
-                text = GetTranslateTextHandler.getText(text,Main.botMemberMap.get(user).getLang());
-                System.out.println(text);
+                GenerateTextHandler.generate(file, user, key);
             } catch (Exception e) {
                 AppLogger.log("音声の文字起こし中にエラーが発生しました: " + e.getMessage(), LogLevel.ERROR);
             }
