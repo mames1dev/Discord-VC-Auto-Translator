@@ -2,12 +2,16 @@ package mames1.net.mamesosu.object;
 
 import lombok.Getter;
 import lombok.Setter;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 
 @Setter @Getter
 public class Translate {
 
     Member member;
+    long guildId;
+    JDA jda;
     String lang;
 
     public Translate(Member member) {

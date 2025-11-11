@@ -37,6 +37,11 @@ public class VoiceCaptureHandler implements AudioReceiveHandler {
 
     @Override
     public void handleUserAudio(UserAudio userAudio) {
+
+        if(userAudio.getUser().isBot()) {
+            return;
+        }
+
         long userId = userAudio.getUser().getIdLong();
         String username = userAudio.getUser().getName();
         User user = Main.bot.getMainBot().getUserById(userId);
@@ -56,7 +61,6 @@ public class VoiceCaptureHandler implements AudioReceiveHandler {
         }
 
         // 一定時間無音なら終了
-        // ここの保存の段階でファイル保存からの転送処理を行う
         if (session.silenceFrames >= SILENCE_LIMIT && session.active) {
             File file = saveUserAudio(userId, username, session.buffer.toByteArray());
             String key = Main.bot.getApiKey();
@@ -65,12 +69,19 @@ public class VoiceCaptureHandler implements AudioReceiveHandler {
             try {
                 if(Main.bot.isLocalTranscript()) {
                     GenerateTextHandler.generate(file, user);
-                    return;
+                } else {
+                    GenerateTextHandler.generate(file, user, key);
                 }
-
-                GenerateTextHandler.generate(file, user, key);
             } catch (Exception e) {
                 AppLogger.log("音声の文字起こし中にエラーが発生しました: " + e.getMessage(), LogLevel.ERROR);
+            } finally {
+                if (file != null && file.exists()) {
+                    if (file.delete()) {
+                        AppLogger.log("録音した音声ファイルを削除しました: " + file.getAbsolutePath(), LogLevel.INFO);
+                    } else {
+                        AppLogger.log("録音した音声ファイルの削除に失敗しました: " + file.getAbsolutePath(), LogLevel.ERROR);
+                    }
+                }
             }
         }
     }

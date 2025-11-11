@@ -100,14 +100,13 @@ public class VoiceJoinRequestListener extends ListenerAdapter {
         for(Member member : members) {
             Translate trans = new Translate(member);
             trans.setLang(Objects.requireNonNull(member == firstMember ? e.getOption("language1") : e.getOption("language2")).getAsString());
+            trans.setJda(firstMember == member ? Main.bot.getTransBot1() : Main.bot.getTransBot2());
+            trans.setGuildId(guild.getIdLong());
 
             Main.botMemberMap.put(member.getUser(), trans);
 
-            AppLogger.log( member.getUser().getName() + " の発言 を " + Objects.requireNonNull(firstMember).getEffectiveName() + " に割り当てました.", LogLevel.INFO);
+            AppLogger.log( member.getUser().getName() + " の発言 を " + Objects.requireNonNull(trans.getMember()).getEffectiveName() + " に割り当てました.", LogLevel.INFO);
         }
-
-        firstMember.deafen(true).queue();
-        secondMember.deafen(true).queue();
 
         e.reply("ボイスチャンネルに参加しました.").setEphemeral(true).queue();
 

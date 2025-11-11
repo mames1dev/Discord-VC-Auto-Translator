@@ -37,6 +37,7 @@ public class Bot {
 
         this.apiKey = dotenv.get("API_KEY"); // Elevenlabs
         this.deeplKey = dotenv.get("DEEPL_KEY"); // DeepL
+        this.chatGptKey = dotenv.get("CHATGPT_KEY"); // ChatGPT
 
         this.mainToken = dotenv.get("MAIN_BOT_TOKEN");
         this.token1 = dotenv.get("BOT_TOKEN_1");
