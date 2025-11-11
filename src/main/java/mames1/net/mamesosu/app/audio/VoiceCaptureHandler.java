@@ -19,8 +19,8 @@ import java.util.Map;
 
 public class VoiceCaptureHandler implements AudioReceiveHandler {
 
-    private static final int SILENCE_THRESHOLD = 2500; // 音量がこれ以下なら無音扱い
-    private static final int SILENCE_LIMIT = 20; // 無音が20フレーム続いたら終了
+    private static final int SILENCE_THRESHOLD = 4500; // 音量がこれ以下なら無音扱い
+    private static final int SILENCE_LIMIT = 10; // 無音が20フレーム続いたら終了
 
     private static class UserSession {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();

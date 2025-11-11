@@ -99,9 +99,13 @@ public class VoiceJoinRequestListener extends ListenerAdapter {
 
         for(Member member : members) {
             Translate trans = new Translate(member);
+            Member m;
             trans.setLang(Objects.requireNonNull(member == firstMember ? e.getOption("language1") : e.getOption("language2")).getAsString());
             trans.setJda(firstMember == member ? Main.bot.getTransBot1() : Main.bot.getTransBot2());
             trans.setGuildId(guild.getIdLong());
+
+            m = Objects.requireNonNull(trans.getJda().getGuildById(trans.getGuildId())).getMemberById(trans.getJda().getSelfUser().getId());
+            Objects.requireNonNull(m).modifyNickname(member.getEffectiveName() + "'s Translator").queue();
 
             Main.botMemberMap.put(member.getUser(), trans);
 
