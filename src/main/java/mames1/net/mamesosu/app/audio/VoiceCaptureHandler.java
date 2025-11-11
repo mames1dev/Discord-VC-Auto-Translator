@@ -43,8 +43,14 @@ public class VoiceCaptureHandler implements AudioReceiveHandler {
         }
 
         long userId = userAudio.getUser().getIdLong();
-        String username = userAudio.getUser().getName();
         User user = Main.bot.getMainBot().getUserById(userId);
+
+        if(!Main.botMemberMap.containsKey(user)) {
+            return;
+        }
+
+        String username = userAudio.getUser().getName();
+
         byte[] data = userAudio.getAudioData(1.0);
 
         UserSession session = sessions.computeIfAbsent(userId, id -> new UserSession());
@@ -62,6 +68,7 @@ public class VoiceCaptureHandler implements AudioReceiveHandler {
 
         // 一定時間無音なら終了
         if (session.silenceFrames >= SILENCE_LIMIT && session.active) {
+
             File file = saveUserAudio(userId, username, session.buffer.toByteArray());
             String key = Main.bot.getApiKey();
             sessions.remove(userId);

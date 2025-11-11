@@ -10,13 +10,14 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import mames1.net.mamesosu.constants.LogLevel;
 import mames1.net.mamesosu.utils.log.AppLogger;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.User;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class PlayerManager {
 
-    private static PlayerManager INSTANCE;
+    private static Map<User, PlayerManager> INSTANCE;
     private final Map<Long, GuildMusicManager> musicManagers;
     private final AudioPlayerManager audioPlayerManager;
 
@@ -56,17 +57,14 @@ public class PlayerManager {
         });
     }
 
-    public void stopAndClear(Guild guild) {
-        GuildMusicManager manager = musicManagers.get(guild.getIdLong());
-        if (manager != null) {
-            manager.scheduler.stopAndClear();
-        }
-    }
+    public static PlayerManager getManager(User user) {
 
-    public static PlayerManager getManager() {
-        if (INSTANCE == null) {
-            INSTANCE = new PlayerManager();
+        if(INSTANCE == null) {
+            INSTANCE = new HashMap<>();
         }
-        return INSTANCE;
+
+        INSTANCE.put(user, new PlayerManager());
+
+        return INSTANCE.get(user);
     }
 }

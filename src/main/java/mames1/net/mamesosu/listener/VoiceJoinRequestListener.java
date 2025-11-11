@@ -36,6 +36,12 @@ public class VoiceJoinRequestListener extends ListenerAdapter {
             e.reply("ボイスチャンネルに参加をしてから実行してください.").setEphemeral(true).queue();
             return;
         }
+        /*
+        if(Objects.requireNonNull(e.getMember().getVoiceState().getChannel()).getMembers().size() != 2) {
+            e.reply("ボイスチャンネルに2人のメンバーが参加している必要があります.").setEphemeral(true).queue();
+            return;
+        }
+         */
 
         AudioChannel audioChannel = e.getMember().getVoiceState().getChannel();
 
@@ -109,7 +115,7 @@ public class VoiceJoinRequestListener extends ListenerAdapter {
 
             Main.botMemberMap.put(member.getUser(), trans);
 
-            AppLogger.log( member.getUser().getName() + " の発言 を " + Objects.requireNonNull(trans.getMember()).getEffectiveName() + " に割り当てました.", LogLevel.INFO);
+            AppLogger.log( member.getUser().getName() + " の発言 を " + Objects.requireNonNull(trans.getJda().getSelfUser().getEffectiveName()) + " に割り当てました.", LogLevel.INFO);
         }
 
         e.reply("ボイスチャンネルに参加しました.").setEphemeral(true).queue();

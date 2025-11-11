@@ -42,12 +42,15 @@ public abstract class GenerateTextHandler {
                     lang
             );
 
+            System.out.println(user.getName());
+
             JDA readBot = Main.botMemberMap.get(user).getJda();
+
             Guild guild = readBot.getGuildById(Main.botMemberMap.get(user).getGuildId());
 
-            PlayerManager.getManager().loadAndPlay(guild, generatedVoice.toString());
-
-            AppLogger.log("音声の再生が開始されました: " + generatedVoice.toString(), LogLevel.INFO);
+            PlayerManager.getManager(user).loadAndPlay(guild, generatedVoice.toString());
+//
+            AppLogger.log("音声の再生が開始されました: " + generatedVoice, LogLevel.INFO);
         } catch (Exception e) {
             AppLogger.log("音声の文字起こし中にエラーが発生しました: " + e.getMessage(), LogLevel.ERROR);
         }
